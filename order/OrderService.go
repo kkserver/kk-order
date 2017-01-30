@@ -278,7 +278,7 @@ func (S *OrderService) HandleOrderCancelTask(a IOrderApp, task *OrderCancelTask)
 
 	err = func() error {
 
-		rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE id=? FOR UPDATE", task.Id)
+		rows, err := kk.DBQuery(tx, a.GetOrderTable(), a.GetPrefix(), " WHERE id=? FOR UPDATE", task.Id)
 
 		if err != nil {
 			return err
@@ -302,7 +302,7 @@ func (S *OrderService) HandleOrderCancelTask(a IOrderApp, task *OrderCancelTask)
 
 			v.Status = OrderStatusCancel
 
-			_, err = kk.DBUpdateWithKeys(db, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true})
+			_, err = kk.DBUpdateWithKeys(tx, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true})
 
 			if err != nil {
 				return err
@@ -385,7 +385,7 @@ func (S *OrderService) HandleOrderPayTask(a IOrderApp, task *OrderPayTask) error
 
 	err = func() error {
 
-		rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE id=? FOR UPDATE", task.Id)
+		rows, err := kk.DBQuery(tx, a.GetOrderTable(), a.GetPrefix(), " WHERE id=? FOR UPDATE", task.Id)
 
 		if err != nil {
 			return err
@@ -416,7 +416,7 @@ func (S *OrderService) HandleOrderPayTask(a IOrderApp, task *OrderPayTask) error
 			v.PayType = task.PayType
 			v.PayTradeNo = task.PayTradeNo
 
-			_, err = kk.DBUpdateWithKeys(db, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true, "payvalue": true, "paytype": true, "paytradeno": true})
+			_, err = kk.DBUpdateWithKeys(tx, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true, "payvalue": true, "paytype": true, "paytradeno": true})
 
 			if err != nil {
 				return err
@@ -499,7 +499,7 @@ func (S *OrderService) HandleOrderRefundTask(a IOrderApp, task *OrderRefundTask)
 
 	err = func() error {
 
-		rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE id=? FOR UPDATE", task.Id)
+		rows, err := kk.DBQuery(tx, a.GetOrderTable(), a.GetPrefix(), " WHERE id=? FOR UPDATE", task.Id)
 
 		if err != nil {
 			return err
@@ -527,7 +527,7 @@ func (S *OrderService) HandleOrderRefundTask(a IOrderApp, task *OrderRefundTask)
 
 			v.Status = OrderStatusRefund
 
-			_, err = kk.DBUpdateWithKeys(db, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true, "refundvalue": true})
+			_, err = kk.DBUpdateWithKeys(tx, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true, "refundvalue": true})
 
 			if err != nil {
 				return err
