@@ -284,13 +284,13 @@ func (S *OrderService) HandleOrderCancelTask(a IOrderApp, task *OrderCancelTask)
 			return err
 		}
 
-		defer rows.Close()
-
 		if rows.Next() {
 
 			scanner := kk.NewDBScaner(&v)
 
 			err = scanner.Scan(rows)
+
+			rows.Close()
 
 			if err != nil {
 				return err
@@ -309,6 +309,7 @@ func (S *OrderService) HandleOrderCancelTask(a IOrderApp, task *OrderCancelTask)
 			}
 
 		} else {
+			rows.Close()
 			return app.NewError(ERROR_ORDER_NOT_FOUND, "Not Found Order")
 		}
 
@@ -391,13 +392,13 @@ func (S *OrderService) HandleOrderPayTask(a IOrderApp, task *OrderPayTask) error
 			return err
 		}
 
-		defer rows.Close()
-
 		if rows.Next() {
 
 			scanner := kk.NewDBScaner(&v)
 
 			err = scanner.Scan(rows)
+
+			rows.Close()
 
 			if err != nil {
 				return err
@@ -423,6 +424,7 @@ func (S *OrderService) HandleOrderPayTask(a IOrderApp, task *OrderPayTask) error
 			}
 
 		} else {
+			rows.Close()
 			return app.NewError(ERROR_ORDER_NOT_FOUND, "Not Found Order")
 		}
 
@@ -505,13 +507,13 @@ func (S *OrderService) HandleOrderRefundTask(a IOrderApp, task *OrderRefundTask)
 			return err
 		}
 
-		defer rows.Close()
-
 		if rows.Next() {
 
 			scanner := kk.NewDBScaner(&v)
 
 			err = scanner.Scan(rows)
+
+			rows.Close()
 
 			if err != nil {
 				return err
@@ -534,6 +536,7 @@ func (S *OrderService) HandleOrderRefundTask(a IOrderApp, task *OrderRefundTask)
 			}
 
 		} else {
+			rows.Close()
 			return app.NewError(ERROR_ORDER_NOT_FOUND, "Not Found Order")
 		}
 
