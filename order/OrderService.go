@@ -719,16 +719,16 @@ func (S *OrderService) HandleOrderQueryTask(a IOrderApp, task *OrderQueryTask) e
 		var counter = OrderQueryCounter{}
 		counter.PageIndex = pageIndex
 		counter.PageSize = pageSize
-		total, err := kk.DBQueryCount(db, a.GetOrderTable(), a.GetPrefix(), sql.String(), args...)
+		counter.RowCount, err = kk.DBQueryCount(db, a.GetOrderTable(), a.GetPrefix(), sql.String(), args...)
 		if err != nil {
 			task.Result.Errno = ERROR_ORDER
 			task.Result.Errmsg = err.Error()
 			return nil
 		}
-		if total%pageSize == 0 {
-			counter.PageCount = total / pageSize
+		if counter.RowCount%pageSize == 0 {
+			counter.PageCount = counter.RowCount / pageSize
 		} else {
-			counter.PageCount = total/pageSize + 1
+			counter.PageCount = counter.RowCount/pageSize + 1
 		}
 		task.Result.Counter = &counter
 	}

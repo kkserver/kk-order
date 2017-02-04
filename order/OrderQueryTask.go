@@ -8,6 +8,7 @@ type OrderQueryCounter struct {
 	PageIndex int `json:"p"`
 	PageSize  int `json:"size"`
 	PageCount int `json:"count"`
+	RowCount  int `json:"rowCount"`
 }
 
 type OrderQueryTaskResult struct {
