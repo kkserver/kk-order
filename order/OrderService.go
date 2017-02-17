@@ -84,7 +84,7 @@ func (S *OrderService) HandleInitTask(a IOrderApp, task *app.InitTask) error {
 
 			log.Println("OrderService", "Cleanup")
 
-			time.Sleep(6 * time.Second)
+			time.Sleep(10 * time.Second)
 
 		}
 
