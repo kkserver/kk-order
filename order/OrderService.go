@@ -36,61 +36,58 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 		return err
 	}
 
-	go func() {
+	var fn func() = nil
 
-		for {
+	fn = func() {
 
-			now := time.Now().Unix()
+		now := time.Now().Unix()
 
-			rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE status=? AND ctime + expires <= ?  ORDER BY id ASC", OrderStatusNone, now)
+		rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE status=? AND ctime + expires <= ?  ORDER BY id ASC", OrderStatusNone, now)
 
-			if err != nil {
-				log.Println("OrderService", "Runloop", "Fail", err.Error())
-			} else {
+		if err != nil {
+			log.Println("OrderService", "Runloop", "Fail", err.Error())
+		} else {
 
-				v := Order{}
-				scanner := kk.NewDBScaner(&v)
+			v := Order{}
+			scanner := kk.NewDBScaner(&v)
 
-				for rows.Next() {
+			for rows.Next() {
 
-					err = scanner.Scan(rows)
+				err = scanner.Scan(rows)
 
-					if err != nil {
-						log.Println("OrderService", "Runloop", "Fail", err.Error())
-						break
-					}
-
-					v.Status = OrderStatusTimeout
-
-					_, err = kk.DBUpdateWithKeys(db, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true})
-
-					if err != nil {
-						log.Println("OrderService", "Runloop", "Fail", err.Error())
-						break
-					}
-
-					did := TriggerOrderTimeoutDidTask{}
-					did.Order = &v
-
-					err = app.Handle(a, &did)
-
-					if err != nil {
-						log.Println("OrderService", "Runloop", "Fail", err.Error())
-					}
+				if err != nil {
+					log.Println("OrderService", "Runloop", "Fail", err.Error())
+					break
 				}
 
-				rows.Close()
+				v.Status = OrderStatusTimeout
+
+				_, err = kk.DBUpdateWithKeys(db, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true})
+
+				if err != nil {
+					log.Println("OrderService", "Runloop", "Fail", err.Error())
+					break
+				}
+
+				did := TriggerOrderTimeoutDidTask{}
+				did.Order = &v
+
+				err = app.Handle(a, &did)
+
+				if err != nil {
+					log.Println("OrderService", "Runloop", "Fail", err.Error())
+				}
 			}
 
-			log.Println("OrderService", "Runloop", "OK")
-
-			time.Sleep(10 * time.Second)
-
+			rows.Close()
 		}
 
-		log.Println("OrderService", "Runloop", "End")
+		log.Println("OrderService", "Runloop", "OK")
 
-	}()
+		a.GetRunloop().AsyncDelay(fn, 10*time.Second)
+	}
+
+	fn()
 
 	return nil
 }

@@ -39,4 +39,5 @@ type IOrderApp interface {
 	GetDB() (*sql.DB, error)
 	GetPrefix() string
 	GetOrderTable() *kk.DBTable
+	GetRunloop() *kk.Dispatch
 }
