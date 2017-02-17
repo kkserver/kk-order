@@ -45,7 +45,7 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 			rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE status=? AND ctime + expires <= ?  ORDER BY id ASC", OrderStatusNone, now)
 
 			if err != nil {
-				log.Println("OrderService", err.Error())
+				log.Println("OrderService", "Runloop", "Fail", err.Error())
 			} else {
 
 				v := Order{}
@@ -56,7 +56,7 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 					err = scanner.Scan(rows)
 
 					if err != nil {
-						log.Println("OrderService", err.Error())
+						log.Println("OrderService", "Runloop", "Fail", err.Error())
 						break
 					}
 
@@ -65,7 +65,7 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 					_, err = kk.DBUpdateWithKeys(db, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true})
 
 					if err != nil {
-						log.Println("OrderService", err.Error())
+						log.Println("OrderService", "Runloop", "Fail", err.Error())
 						break
 					}
 
@@ -75,20 +75,22 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 					err = app.Handle(a, &did)
 
 					if err != nil {
-						log.Println("OrderService", err.Error())
+						log.Println("OrderService", "Runloop", "Fail", err.Error())
 					}
 				}
 
 				rows.Close()
 			}
 
-			log.Println("OrderService", "Cleanup")
+			log.Println("OrderService", "Runloop", "OK")
 
 			time.Sleep(10 * time.Second)
 
 		}
 
 	}()
+
+	log.Println("OrderService", "Runloop", "End")
 
 	return nil
 }
