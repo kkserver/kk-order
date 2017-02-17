@@ -88,9 +88,9 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 
 		}
 
-	}()
+		log.Println("OrderService", "Runloop", "End")
 
-	log.Println("OrderService", "Runloop", "End")
+	}()
 
 	return nil
 }
