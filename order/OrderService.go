@@ -28,7 +28,7 @@ func (S *OrderService) Handle(a app.IApp, task app.ITask) error {
 	return app.ServiceReflectHandle(a, task, S)
 }
 
-func (S *OrderService) HandleInitTask(a IOrderApp, task *app.InitTask) error {
+func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) error {
 
 	var db, err = a.GetDB()
 
