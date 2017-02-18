@@ -40,11 +40,13 @@ func (S *OrderService) HandleRunloopTask(a IOrderApp, task *app.RunloopTask) err
 
 	fn = func() {
 
-		now := time.Now().Unix()
+		log.Println("OrderService", "Runloop", "...")
 
 		for {
 
 			count := 0
+
+			now := time.Now().Unix()
 
 			rows, err := kk.DBQuery(db, a.GetOrderTable(), a.GetPrefix(), " WHERE status=? AND ctime + expires <= ?  ORDER BY id ASC LIMIT 1", OrderStatusNone, now)
 
