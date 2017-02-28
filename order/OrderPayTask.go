@@ -15,6 +15,7 @@ type OrderPayTask struct {
 	Value      interface{} `json:"value"`      //支付金额
 	PayType    string      `json:"payType"`    //支付类型
 	PayTradeNo string      `json:"payTradeNo"` //支付订单号
+	Options    interface{} `json:"options"`    //选项
 	Result     OrderPayTaskResult
 }
 

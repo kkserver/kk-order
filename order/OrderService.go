@@ -222,12 +222,22 @@ func (S *OrderService) HandleOrderSetTask(a IOrderApp, task *OrderSetTask) error
 		}
 
 		if task.Options != nil {
-			b, err := json.Encode(task.Options)
-			if err != nil {
-				task.Result.Errno = ERROR_ORDER
-				task.Result.Errmsg = err.Error()
-				return nil
+
+			var options interface{} = nil
+
+			if v.Options != "" {
+				json.Decode([]byte(v.Options), &options)
 			}
+
+			if options == nil {
+				options = map[interface{}]interface{}{}
+			}
+
+			dynamic.Each(task.Options, func(key interface{}, value interface{}) bool {
+				dynamic.Set(options, dynamic.StringValue(key, ""), value)
+				return true
+			})
+			b, _ := json.Encode(options)
 			v.Options = string(b)
 			keys["options"] = true
 		}
@@ -427,16 +437,45 @@ func (S *OrderService) HandleOrderPayTask(a IOrderApp, task *OrderPayTask) error
 				return app.NewError(ERROR_ORDER_STATUS, "The current state can not be modified")
 			}
 
+			keys := map[string]bool{}
+
 			v.Status = OrderStatusPay
+
+			keys["status"] = true
 
 			if task.Value != nil {
 				v.PayValue = dynamic.IntValue(task.Value, v.PayValue)
+				keys["payvalue"] = true
+			}
+
+			if task.Options != nil {
+
+				var options interface{} = nil
+
+				if v.Options != "" {
+					json.Decode([]byte(v.Options), &options)
+				}
+
+				if options == nil {
+					options = map[interface{}]interface{}{}
+				}
+
+				dynamic.Each(task.Options, func(key interface{}, value interface{}) bool {
+					dynamic.Set(options, dynamic.StringValue(key, ""), value)
+					return true
+				})
+				b, _ := json.Encode(options)
+				v.Options = string(b)
+				keys["options"] = true
 			}
 
 			v.PayType = task.PayType
 			v.PayTradeNo = task.PayTradeNo
 
-			_, err = kk.DBUpdateWithKeys(tx, a.GetOrderTable(), a.GetPrefix(), &v, map[string]bool{"status": true, "payvalue": true, "paytype": true, "paytradeno": true})
+			keys["paytype"] = true
+			keys["paytradeno"] = true
+
+			_, err = kk.DBUpdateWithKeys(tx, a.GetOrderTable(), a.GetPrefix(), &v, keys)
 
 			if err != nil {
 				return err
